@@ -4,29 +4,60 @@ import { firebaseAuth } from '../firebase';
 const authContext = createContext();
 
 function useAuth() {
-    return useContext(authContext)
+  return useContext(authContext)
 }
 
 function AuthProvider({ children }) {
-    const [ currentUser, setCurrentUser ]  = useState();
-    const [ loading, setLoading ] = useState(true);
+  const [ currentUser, setCurrentUser ] = useState();
+  const [ loading, setLoading ] = useState(true);
 
-    useEffect(() => {
-        return firebaseAuth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            setLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    firebaseAuth.languageCode = 'es';
+    return firebaseAuth.onAuthStateChanged(user => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+  }, []);
 
-    function signup(email, password){
-        return firebaseAuth.createUserWithEmailAndPassword(email.password);
-    }
+  function signup(email, password){
+    return firebaseAuth.createUserWithEmailAndPassword(email, password);
+  }
 
-    return (
-        <authContext.Provider value={{ currentUser, signup }}>
-            { !loading && children }
-        </authContext.Provider>
-    );
+  function login(email, password){
+    return firebaseAuth.signInWithEmailAndPassword(email, password);
+  }
+
+  function logout(){
+    return firebaseAuth.signOut();
+  }
+
+  function resetPassword(email){
+    return firebaseAuth.sendPasswordResetEmail(email);
+  }
+
+  function updateEmail(email){
+    return currentUser.updateEmail(email);
+  }
+
+  function updatePassword(password){
+    return currentUser.updatePassword(password);
+  }
+
+const value = {
+  currentUser,
+  signup,
+  login,
+  logout,
+  resetPassword,
+  updateEmail,
+  updatePassword
+}
+
+  return (
+    <authContext.Provider value={ value }>
+      { !loading && children }
+    </authContext.Provider>
+  );
 }
 
 export { useAuth, AuthProvider }

@@ -1,29 +1,26 @@
 import { useRef, useState } from 'react';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
 import { useAuth } from '../contexts/authContext';
+import { Link, useHistory } from 'react-router-dom';
 
-function Signup() {
+function Login() {
     const emailRef = useRef();
     const passwordRef = useRef();
-    const confirmPasswordRef = useRef();
-    const { currentUser, signup } = useAuth();
+    const { login } = useAuth();
     const [ error, setError ] = useState('');
     const [ loading, setLoading ] = useState('');
+    const history = useHistory();
 
     async function handleSubmit(e){
         e.preventDefault();
-        
-        if(passwordRef.current.value !== confirmPasswordRef.current.value) {
-            return setError('Passwords no coinciden');
-        }
 
         try{
             setError('')
             setLoading(true)
-            await signup(emailRef.current.value, passwordRef.current.value);
-            console.log(currentUser);
+            await login(emailRef.current.value, passwordRef.current.value);
+            history.push('/');
         } catch (e) {
-            setError('Error al crear usuario: ' + e.message)
+            setError('Error al iniciar sesión: ' + e.message)
             setLoading(false)
             console.log(e);
         }
@@ -32,7 +29,7 @@ function Signup() {
     return (
         <Card className="w-75 mx-auto mt-5">
             <Card.Body>
-                <h1 className="display-4 text-center my-3">Signup</h1>
+                <h1 className="display-4 text-center my-3">Login</h1>
                 { error && error !== '' && <Alert variant="danger">{ error }</Alert> }
                 <Form onSubmit={ handleSubmit }>
                     <Form.Group className="mb-3" controlId="formEmail">
@@ -45,18 +42,19 @@ function Signup() {
                         <Form.Control ref={ passwordRef } type="password" placeholder="Password" autoComplete="off" required />
                     </Form.Group>
 
-                    <Form.Group className="mb-3" controlId="formConfigPassword">
-                        <Form.Label> Confirm password</Form.Label>
-                        <Form.Control ref={ confirmPasswordRef } type="password" placeholder=" Confirm password" autoComplete="off" required />
-                    </Form.Group>
-
                     <Button className="w-100" variant="primary" type="submit" disabled={ loading }>
-                        Sign Up
+                        Log In
                     </Button>
                 </Form>
+                <Card.Text className="text-muted text-center my-3">
+                    <Link to="/forgot-password">Has olvidado tu contraseña?</Link>
+                </Card.Text>
+                <Card.Text className="text-muted text-center my-3">
+                    Necesias una cuenta? <Link to="signup">Regístrate aquí</Link>
+                </Card.Text>
             </Card.Body>
         </Card>
     );
 }
 
-export default Signup;
+export default Login;
